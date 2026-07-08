@@ -10,9 +10,20 @@ import {
   ROADMAP,
   ENVIRONMENTS,
   CONSUMERS,
+  FAQS,
   SSO_URL,
   GITHUB_URL,
 } from "../config/site";
+
+const faqJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+});
 
 const STATS = [
   { value: "OIDC / 2.1", label: "标准协议 · OpenID Connect + OAuth 2.1" },
@@ -137,6 +148,7 @@ const CODE_SAMPLES = [
             ID&lt;AIRDB&lt;SPECIMEN<span>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span><br />
             8F3C21E7<span>&lt;&lt;</span>VERIFIED<span>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span>04
           </div>
+          <div class="id-foil" aria-hidden="true"></div>
           <svg class="id-stamp" viewBox="0 0 132 132" aria-hidden="true">
             <defs>
               <path id="stamp-arc" d="M 66,66 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" />
@@ -379,6 +391,32 @@ const CODE_SAMPLES = [
     </div>
   </section>
 
+  <!-- ============ 常见问题 ============ -->
+  <section class="faq" id="faq">
+    <div class="shell faq-grid">
+      <header class="section-head">
+        <p class="eyebrow">常见问题</p>
+        <h2>问得最多的，<br /><span class="ital">先答在这</span>。</h2>
+        <p class="section-lede">
+          关于核验即弃、数据去向和接入方式。没找到答案的问题，去 GitHub 提 issue，
+          答完会补充到这里。
+        </p>
+      </header>
+      <div class="faq-list">
+        {FAQS.map((f, i) => (
+          <details class="faq-item" open={i === 0}>
+            <summary>
+              <span>{f.q}</span>
+              <span class="faq-mark" aria-hidden="true">＋</span>
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+    <script type="application/ld+json" set:html={faqJsonLd} />
+  </section>
+
   <!-- ============ CTA ============ -->
   <section class="cta-band">
     <div class="shell cta-inner">
@@ -400,6 +438,28 @@ const CODE_SAMPLES = [
   </style>
 
   <script>
+    // 证件卡：指针跟随 3D 倾斜 + 烫金反光（仅精确指针设备，尊重 reduced-motion）
+    const wrap = document.querySelector<HTMLElement>(".id-card-wrap");
+    const card = wrap?.querySelector<HTMLElement>(".id-card");
+    if (
+      wrap && card &&
+      matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      !matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      wrap.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
+        card.style.setProperty("--rx", `${(-py * 6).toFixed(2)}deg`);
+        card.style.setProperty("--mx", `${((px + 0.5) * 100).toFixed(1)}%`);
+      });
+      wrap.addEventListener("pointerleave", () => {
+        card.style.setProperty("--ry", "0deg");
+        card.style.setProperty("--rx", "0deg");
+      });
+    }
+
     // 代码示例 tab 切换
     document.querySelectorAll<HTMLButtonElement>("[data-code-tab]").forEach((btn) => {
       btn.addEventListener("click", () => {

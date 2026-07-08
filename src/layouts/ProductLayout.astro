@@ -21,6 +21,7 @@ const NAV = [
   { label: "核验即弃", href: "/#verify" },
   { label: "开发者接入", href: "/#developers" },
   { label: "路线图", href: "/#roadmap" },
+  { label: "常见问题", href: "/#faq" },
 ];
 
 const jsonLd = JSON.stringify({
@@ -39,6 +40,17 @@ const jsonLd = JSON.stringify({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // 首帧前确定主题，避免闪烁。优先级：?theme= 参数 > localStorage > 系统偏好。
+      (() => {
+        const q = new URLSearchParams(location.search).get("theme");
+        const saved = localStorage.getItem("theme");
+        const pick = (v) => v === "dark" || v === "light" ? v : null;
+        document.documentElement.dataset.theme =
+          pick(q) ?? pick(saved) ??
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -83,6 +95,7 @@ const jsonLd = JSON.stringify({
         <button class="nav-toggle mono" aria-expanded="false" aria-controls="site-nav">菜单</button>
         <div class="topbar-actions">
           <a class="group-link" href={GITHUB_URL} rel="noopener">GitHub ↗</a>
+          <button class="theme-toggle" aria-label="切换深浅色模式" title="切换深浅色">◐</button>
           <a class="btn btn-solid btn-sm" href={SSO_URL} rel="noopener">登录 airdb ID</a>
         </div>
       </div>
@@ -128,6 +141,14 @@ const jsonLd = JSON.stringify({
     </footer>
 
     <script>
+      // 深浅色切换（初始值由 head 内联脚本确定）
+      document.querySelector(".theme-toggle")?.addEventListener("click", () => {
+        const root = document.documentElement;
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        localStorage.setItem("theme", next);
+      });
+
       const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
       const bar = document.getElementById("topbar");
       toggle?.addEventListener("click", () => {
