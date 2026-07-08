@@ -1,0 +1,167 @@
+---
+import ProductLayout from "../../layouts/ProductLayout.astro";
+
+const ENDPOINTS = [
+  { sig: "GET /v1/datasets", desc: "List datasets in the catalog. Filter by domain, region, or cadence." },
+  { sig: "GET /v1/datasets/{id}", desc: "Dataset metadata: schema, coverage, update cadence, lineage, licensing." },
+  { sig: "GET /v1/datasets/{id}/rows", desc: "Query rows with typed filters. Cursor-paginated, max 10,000 rows per page." },
+  { sig: "GET /v1/datasets/{id}/export", desc: "Start a bulk export job (parquet or CSV). Poll or receive a webhook when ready." },
+  { sig: "GET /v1/prices", desc: "Convenience endpoint over commodity price series. Same parameters as rows." },
+  { sig: "POST /v1/webhooks", desc: "Subscribe to dataset updates. Signed payloads, automatic retries." },
+];
+
+const DATASETS = [
+  { id: "agri/apple-prices", desc: "Daily wholesale apple prices by production region", cadence: "daily", status: "live" },
+  { id: "agri/grain-yields", desc: "Seasonal grain yield estimates, county resolution", cadence: "seasonal", status: "live" },
+  { id: "agri/weather-obs", desc: "Station-level weather observations, agriculture regions", cadence: "hourly", status: "live" },
+  { id: "supply/cold-chain", desc: "Cold-chain logistics capacity and lane pricing", cadence: "weekly", status: "beta" },
+  { id: "trade/customs-agri", desc: "Agricultural import/export flows by HS code", cadence: "monthly", status: "beta" },
+];
+
+const SDKS = [
+  { name: "Python", pkg: "pip install airdb", status: "beta" },
+  { name: "TypeScript", pkg: "npm install @airdb/sdk", status: "beta" },
+  { name: "Go", pkg: "go get airdb.io/sdk-go", status: "planned" },
+];
+---
+
+<ProductLayout
+  lang="en"
+  title="Documentation — AirDB"
+  description="AirDB developer documentation: quickstart, API reference, dataset catalog, and SDKs for the AirDB data platform."
+  path="/docs/"
+>
+  <div class="shell page-hero">
+    <p class="notice">Early access · endpoints may change before general availability</p>
+    <h1>Documentation</h1>
+    <p class="lede">
+      Everything you need to make your first call and take AirDB to production.
+      If something is unclear, tell us: <a href="mailto:info@airdb.com">info@airdb.com</a>.
+    </p>
+    <nav class="toc" aria-label="On this page">
+      <a href="#quickstart">Quickstart</a>
+      <a href="#reference">API Reference</a>
+      <a href="#datasets">Dataset Catalog</a>
+      <a href="#sdks">SDKs</a>
+    </nav>
+  </div>
+
+  <div class="shell doc-body">
+    <section class="doc-section" id="quickstart">
+      <h2><span class="sec-no">01 · GUIDE</span>Quickstart</h2>
+      <p>
+        Three steps from zero to data: get a key, make a request, page through the results.
+      </p>
+
+      <h3>1. Get an API key</h3>
+      <p>
+        Request access at <a href="/get-access/">airdb.io/get-access</a>. Keys are scoped per
+        environment; keep them out of source control and pass them via the
+        <code>AIRDB_KEY</code> environment variable.
+      </p>
+
+      <h3>2. Make your first request</h3>
+      <pre class="code-block"><code>export AIRDB_KEY="sk_live_…"
+
+curl https://api.airdb.io/v1/prices \
+  -H "Authorization: Bearer $AIRDB_KEY" \
+  -d commodity=apple -d region=CN-HZ</code></pre>
+      <p>
+        Every response is JSON with a stable schema. Errors follow RFC 9457 problem details,
+        so your client can branch on <code>type</code> instead of parsing messages.
+      </p>
+
+      <h3>3. Paginate</h3>
+      <p>
+        List responses include a <code>next_cursor</code>. Pass it back as <code>cursor</code>
+        to fetch the next page; a null cursor means you have everything.
+      </p>
+      <pre class="code-block"><code>curl https://api.airdb.io/v1/prices \
+  -H "Authorization: Bearer $AIRDB_KEY" \
+  -d commodity=apple -d region=CN-HZ \
+  -d cursor="eyJvZmZzZXQi…"</code></pre>
+    </section>
+
+    <section class="doc-section" id="reference">
+      <h2><span class="sec-no">02 · REFERENCE</span>API Reference</h2>
+      <p>
+        Base URL <code>https://api.airdb.io</code>. All endpoints require a Bearer key.
+        Rate limits and remaining quota are reported in <code>x-ratelimit-*</code> headers.
+      </p>
+      <div class="table-scroll">
+        <table class="doc-table">
+          <thead>
+            <tr><th scope="col">Endpoint</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            {ENDPOINTS.map((e) => (
+              <tr><td>{e.sig}</td><td>{e.desc}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The full reference with every parameter, error code, and response schema ships with
+        general availability. Early-access partners receive the OpenAPI spec directly.
+      </p>
+    </section>
+
+    <section class="doc-section" id="datasets">
+      <h2><span class="sec-no">03 · CATALOG</span>Dataset Catalog</h2>
+      <p>
+        A sample of what is live today. Each dataset page documents coverage, cadence,
+        lineage, and licensing terms.
+      </p>
+      <div class="table-scroll">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th scope="col">Dataset</th>
+              <th scope="col">Description</th>
+              <th scope="col">Cadence</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {DATASETS.map((d) => (
+              <tr>
+                <td>{d.id}</td>
+                <td>{d.desc}</td>
+                <td>{d.cadence}</td>
+                <td><span class:list={["pill", d.status === "live" && "pill-live"]}>{d.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Need a dataset that is not listed? Managed Collection builds compliant pipelines to
+        order: <a href="/get-access/?plan=enterprise">tell us what you need</a>.
+      </p>
+    </section>
+
+    <section class="doc-section" id="sdks">
+      <h2><span class="sec-no">04 · LIBRARIES</span>SDKs</h2>
+      <p>
+        Official clients wrap auth, pagination, retries, and typed schemas.
+        The REST API is always the source of truth.
+      </p>
+      <div class="table-scroll">
+        <table class="doc-table">
+          <thead>
+            <tr><th scope="col">Language</th><th scope="col">Install</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody>
+            {SDKS.map((s) => (
+              <tr>
+                <td>{s.name}</td>
+                <td><code>{s.pkg}</code></td>
+                <td><span class:list={["pill", s.status !== "planned" && "pill-live"]}>{s.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</ProductLayout>

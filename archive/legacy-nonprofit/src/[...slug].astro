@@ -1,0 +1,220 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  getAllPages,
+  getChildren,
+  getLanguageMenus,
+  getLanguageOptions,
+  getPageBySegments,
+  getSiblingPages,
+} from "../lib/content";
+import { getLanguageMeta } from "../config/site";
+import { HOME_CONTENT } from "../config/home";
+
+export function getStaticPaths() {
+  return getAllPages().map((page) => ({
+    params: {
+      slug: page.routeSegments.join("/"),
+    },
+  }));
+}
+
+const slug = Astro.params.slug ?? "";
+const segments = slug.split("/").filter(Boolean);
+const page = getPageBySegments(segments);
+
+if (!page) {
+  throw new Error(`Missing page for route: ${slug}`);
+}
+
+const menus = getLanguageMenus(page.lang);
+const currentPath = page.routePath;
+const children = getChildren(page);
+const siblings = getSiblingPages(page);
+const languageMeta = getLanguageMeta(page.lang);
+const homeContent = HOME_CONTENT[page.lang] ?? HOME_CONTENT.zh;
+const languageOptions = getLanguageOptions(page, {
+  zh: "中文",
+  cc: "EN",
+});
+const sidebarNav =
+  page.lang === "zh" && currentPath.startsWith("/zh/about")
+    ? menus.docs
+    : siblings.map((item) => ({ name: item.title, url: item.routePath }));
+
+const features = Array.isArray(page.data.features) ? page.data.features : [];
+const sections = Array.isArray(page.data.sections) ? page.data.sections : [];
+const iconMap: Record<string, string> = {
+  data: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="6.5" ry="2.8"></ellipse><path d="M5.5 5v6c0 1.6 2.9 2.9 6.5 2.9s6.5-1.3 6.5-2.9V5"></path><path d="M5.5 11v6c0 1.6 2.9 2.9 6.5 2.9s6.5-1.3 6.5-2.9v-6"></path></svg>',
+  product: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6L3.5 10.5 8 15"></path><path d="M16 6l4.5 4.5L16 15"></path><path d="M13.5 4L10.5 17"></path></svg>',
+  cloud: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 18h9.5a4 4 0 0 0 .2-8A5.7 5.7 0 0 0 6.5 8.3 4.2 4.2 0 0 0 7.5 18Z"></path></svg>',
+  training: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="2.2"></circle><circle cx="6.3" cy="10" r="1.8"></circle><circle cx="17.7" cy="10" r="1.8"></circle><path d="M4.5 18c.6-2.3 2.3-3.5 4.8-3.5h5.4c2.5 0 4.2 1.2 4.8 3.5"></path></svg>',
+  network: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="1.7"></circle><circle cx="5.5" cy="10.5" r="1.7"></circle><circle cx="18.5" cy="10.5" r="1.7"></circle><circle cx="8" cy="18" r="1.7"></circle><circle cx="16" cy="18" r="1.7"></circle><path d="M10.8 5.6 7 9.2"></path><path d="M13.2 5.6 17 9.2"></path><path d="M7 11.8 8.8 16"></path><path d="M17 11.8 15.2 16"></path><path d="M9.8 18h4.4"></path></svg>',
+  governance: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18.5 6v5.2c0 4.2-2.4 7-6.5 9.3-4.1-2.3-6.5-5.1-6.5-9.3V6L12 3.5Z"></path><path d="m9.5 12 1.7 1.8 3.4-3.9"></path></svg>',
+};
+---
+
+<BaseLayout
+  title={`${page.title} | airdb`}
+  description={page.description}
+  globalNav={page.isIndex ? homeContent.nav : menus.global}
+  sidebarNav={sidebarNav}
+  languageOptions={languageOptions}
+  currentPath={currentPath}
+  htmlLang={languageMeta.htmlLang}
+  homePath={languageMeta.homePath}
+  brandTagline={languageMeta.brandTagline}
+  footerTitle={languageMeta.footerTitle}
+  footerCopy={languageMeta.footerCopy}
+  copyrightLabel={languageMeta.copyrightLabel}
+  filingLabel={languageMeta.filingLabel}
+  filingUrl={languageMeta.filingUrl}
+>
+  {page.isIndex ? (
+    <>
+      <section class="home-hero home-hero-reference">
+        <div class="hero-copy">
+          <h1>{homeContent.heroTitle}</h1>
+          <p class="hero-body">{homeContent.heroBody}</p>
+          <div class="hero-actions">
+            <a class="button-link" href={homeContent.nav[1]?.url ?? languageMeta.homePath}>
+              {homeContent.primaryAction}
+            </a>
+            <a class="button-secondary" href={homeContent.nav[2]?.url ?? languageMeta.homePath}>
+              {homeContent.secondaryAction}
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-collage">
+          <article class="hero-photo hero-photo-main">
+            <img src="/images/brand/hero-family.jpg" alt="" loading="eager" />
+          </article>
+          <article class="hero-photo hero-photo-device">
+            <img src="/images/brand/hero-device.jpg" alt="" loading="eager" />
+          </article>
+          <article class="hero-photo hero-photo-solar">
+            <img src="/images/brand/hero-solar.jpg" alt="" loading="eager" />
+          </article>
+          <div class="hero-focus-card">
+            <h2>{homeContent.focusTitle}</h2>
+            <ul>
+              {homeContent.focusItems.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div class="hero-impact-card">
+            <div class="impact-heading">
+              <span>{homeContent.impactTitle}</span>
+              <small>{homeContent.impactYear}</small>
+            </div>
+            <div class="impact-stats">
+              {homeContent.stats.map((item) => (
+                <div>
+                  <strong>{item.value}</strong>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="hero-ambient hero-ambient-left"></div>
+          <div class="hero-ambient hero-ambient-right"></div>
+          <div class="hero-dotted-grid"></div>
+          <img class="hero-mountain" src="/images/brand/bg-mountains.jpg" alt="" loading="eager" />
+        </div>
+      </section>
+
+      <section class="capabilities-section">
+        <div class="section-heading section-heading-centered">
+          <h2>{homeContent.capabilityTitle}</h2>
+        </div>
+        <div class="capability-grid">
+          {homeContent.capabilities.map((item) => (
+            <article class="capability-card">
+              <div class="capability-icon" set:html={iconMap[item.key]} />
+              <h3>{item.title}</h3>
+              <p>{item.copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="story-grid">
+        {homeContent.stories.map((story) => (
+          <article class:list={["story-card", story.tone === "dark" && "story-card-dark"]}>
+            <img src={story.image} alt="" loading="lazy" />
+            <div class="story-copy">
+              <span>{story.eyebrow}</span>
+              <h3>{story.title}</h3>
+              <p>{story.copy}</p>
+              <a class:list={["story-link", story.tone === "dark" && "story-link-light"]} href={languageMeta.homePath}>
+                {story.cta}
+              </a>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section class="reference-footer">
+        <div class="footer-brand-column">
+          <p class="footer-logo">airdb</p>
+          <p>{homeContent.footerIntro}</p>
+          <small>&copy; 2024 airdb. {page.lang === "zh" ? "保留所有权利。" : "All rights reserved."}</small>
+        </div>
+        {homeContent.footerColumns.map((column) => (
+          <div class="footer-link-column">
+            <h3>{column.title}</h3>
+            <ul>
+              {column.items.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <div class="footer-subscribe">
+          <h3>{homeContent.subscribeTitle}</h3>
+          <p>{homeContent.subscribeCopy}</p>
+          <div class="subscribe-form">
+            <input type="email" placeholder={homeContent.subscribePlaceholder} />
+            <button type="button">{homeContent.subscribeButton}</button>
+          </div>
+          <div class="social-row">
+            <span>in</span>
+            <span>X</span>
+            <span>◎</span>
+            <span>▶</span>
+            <span>✉</span>
+          </div>
+        </div>
+      </section>
+    </>
+  ) : (
+    <article class="article-shell">
+      <header class="article-header">
+        <h1>{page.title}</h1>
+        {page.description && <p class="article-description">{page.description}</p>}
+        <div class="article-meta">
+          <span>{languageMeta.articleLeadLabel}</span>
+          <span>{page.section ?? page.lang}</span>
+        </div>
+      </header>
+
+      <div class="prose" set:html={page.html} />
+
+      {children.length > 0 && (
+        <section class="children-grid">
+          <h2>{languageMeta.articleContinueLabel}</h2>
+          <div class="card-grid">
+            {children.map((child) => (
+              <a class="card-link" href={child.routePath}>
+                <h3>{child.title}</h3>
+                <p>{child.description}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  )}
+</BaseLayout>

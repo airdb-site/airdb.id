@@ -1,0 +1,84 @@
+---
+import ProductLayout from "../../layouts/ProductLayout.astro";
+---
+
+<ProductLayout
+  lang="en"
+  title="Get API access — AirDB"
+  description="Request an AirDB API key: free developer tier, Team trial, or an Enterprise conversation. We reply within one business day."
+  path="/get-access/"
+>
+  <div class="shell page-hero">
+    <p class="notice">Early access · we onboard new accounts in weekly batches</p>
+    <h1>Get API access</h1>
+    <p class="lede">
+      Tell us what you are building and we will set up your workspace and API key.
+      We reply within one business day.
+    </p>
+  </div>
+
+  <div class="shell form-wrap">
+    <form
+      name="api-access"
+      method="POST"
+      action="/get-access/thanks/"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      class="form-grid"
+    >
+      <input type="hidden" name="form-name" value="api-access" />
+      <p hidden aria-hidden="true">
+        <label>Leave this field empty: <input name="bot-field" /></label>
+      </p>
+
+      <div class="field">
+        <label for="name">Name <span class="req">*</span></label>
+        <input id="name" name="name" type="text" required autocomplete="name" />
+      </div>
+
+      <div class="field">
+        <label for="email">Work email <span class="req">*</span></label>
+        <input id="email" name="email" type="email" required autocomplete="email" />
+        <p class="hint">Your API key and onboarding details go here.</p>
+      </div>
+
+      <div class="field">
+        <label for="company">Company / organization</label>
+        <input id="company" name="company" type="text" autocomplete="organization" />
+      </div>
+
+      <div class="field">
+        <label for="plan">Plan you are interested in <span class="req">*</span></label>
+        <select id="plan" name="plan" required>
+          <option value="developer">Developer (free)</option>
+          <option value="team">Team ($99 / month, 14-day trial)</option>
+          <option value="enterprise">Enterprise (custom)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="usecase">What are you building?</label>
+        <textarea
+          id="usecase"
+          name="usecase"
+          placeholder="e.g. procurement dashboard for a fruit supply chain; needs daily wholesale prices for East China"
+        ></textarea>
+      </div>
+
+      <button class="btn btn-solid" type="submit">Request access</button>
+      <p class="hint">
+        Prefer email? Write to <a href="mailto:info@airdb.com">info@airdb.com</a>.
+        We never share your details outside AirDB Group.
+      </p>
+    </form>
+  </div>
+
+  <script>
+    // Pre-select the plan from ?plan= links on the pricing section
+    const plan = new URLSearchParams(location.search).get("plan");
+    const select = document.getElementById("plan") as HTMLSelectElement | null;
+    if (plan && select && [...select.options].some((o) => o.value === plan)) {
+      select.value = plan;
+    }
+  </script>
+</ProductLayout>

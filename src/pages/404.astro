@@ -1,0 +1,26 @@
+---
+import ProductLayout from "../layouts/ProductLayout.astro";
+---
+
+<ProductLayout
+  title="页面不存在 — airdb.id"
+  description="你访问的页面不存在。"
+  path="/404"
+>
+  <div class="shell notfound">
+    <p class="status-line">HTTP/2 404 · 查无此证</p>
+    <h1>这一页<span class="ital">核验未通过</span>。</h1>
+    <p>
+      地址可能变了，也可能从来就没有过。回首页看看平台能力与路线图，
+      或者去 <a href="https://airdb.dev" rel="noopener">airdb.dev 研发门户</a>找找。
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-solid" href="/">返回首页</a>
+      <a class="btn btn-ghost" href="/#developers">开发者接入</a>
+    </div>
+  </div>
+
+  <style>
+    h1 .ital { font-style: normal; }
+  </style>
+</ProductLayout>

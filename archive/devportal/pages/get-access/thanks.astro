@@ -1,0 +1,25 @@
+---
+import ProductLayout from "../../layouts/ProductLayout.astro";
+---
+
+<ProductLayout
+  lang="en"
+  title="Request received — AirDB"
+  description="Your AirDB access request has been received. We reply within one business day."
+  path="/get-access/thanks/"
+>
+  <div class="shell notfound">
+    <p class="status-line">HTTP/2 202 · accepted</p>
+    <h1>Request <span class="ital">received.</span></h1>
+    <p>
+      Thanks for your interest in AirDB. We onboard new accounts in weekly batches and
+      will reply within one business day with your workspace details.
+      Meanwhile, the <a href="/docs/">documentation</a> covers everything from your first
+      call to bulk exports.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-solid" href="/docs/">Read the docs</a>
+      <a class="btn btn-ghost" href="/">Back to home</a>
+    </div>
+  </div>
+</ProductLayout>

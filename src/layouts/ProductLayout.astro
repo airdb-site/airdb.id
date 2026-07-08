@@ -1,0 +1,148 @@
+---
+import "../styles/product.css";
+import { SSO_URL, GITHUB_URL, DEV_PORTAL_URL } from "../config/site";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path for canonical URL, e.g. "/" */
+  path?: string;
+  ogImage?: string;
+  lang?: string;
+}
+
+const { title, description, path = "/", ogImage = "/og/home.png", lang = "zh-CN" } = Astro.props;
+const site = Astro.site ?? new URL("https://airdb.id");
+const canonical = new URL(path, site).href;
+const ogImageUrl = new URL(ogImage, site).href;
+
+const NAV = [
+  { label: "平台能力", href: "/#capabilities" },
+  { label: "核验即弃", href: "/#verify" },
+  { label: "开发者接入", href: "/#developers" },
+  { label: "路线图", href: "/#roadmap" },
+];
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "airdb.id 统一身份平台",
+  url: site.href,
+  description:
+    "airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、核验即弃的实名体系与零信任接入。",
+  publisher: { "@type": "Organization", name: "airdb", url: site.href, sameAs: [GITHUB_URL] },
+});
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="airdb.id" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <link rel="preload" href="/fonts/fraunces-var-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/fraunces-var-italic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/ibm-plex-sans-var-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/ibm-plex-mono-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script type="application/ld+json" set:html={jsonLd} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+
+    <header class="topbar">
+      <div class="shell topbar-inner" id="topbar">
+        <a class="wordmark" href="/">
+          <span class="wordmark-glyph" aria-hidden="true">❖</span>
+          airdb<em>.id</em>
+        </a>
+        <nav class="topnav" id="site-nav" aria-label="主导航">
+          {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
+        </nav>
+        <button class="nav-toggle mono" aria-expanded="false" aria-controls="site-nav">菜单</button>
+        <div class="topbar-actions">
+          <a class="group-link" href={GITHUB_URL} rel="noopener">GitHub ↗</a>
+          <a class="btn btn-solid btn-sm" href={SSO_URL} rel="noopener">登录 airdb ID</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer-grid">
+        <div class="footer-brand">
+          <p class="wordmark">airdb<em>.id</em></p>
+          <p>
+            airdb.id 是 airdb 体系的统一身份平台：一个账号登录所有 airdb 服务，
+            实名核验坚持「核验即弃」——只留结果，不留证件。国内环境请访问
+            <a href="https://id.airdb.net" rel="noopener">id.airdb.net</a>。
+          </p>
+        </div>
+        <div class="footer-col">
+          <h3>平台</h3>
+          <a href="/#capabilities">平台能力</a>
+          <a href="/#verify">核验即弃</a>
+          <a href="/#roadmap">路线图</a>
+        </div>
+        <div class="footer-col">
+          <h3>开发者</h3>
+          <a href="/#developers">OIDC 接入</a>
+          <a href="/#network">环境与接入方</a>
+          <a href={GITHUB_URL} rel="noopener">GitHub</a>
+        </div>
+        <div class="footer-col">
+          <h3>生态</h3>
+          <a href={DEV_PORTAL_URL} rel="noopener">研发门户 airdb.dev</a>
+          <a href="https://bbs.airdb.dev" rel="noopener">BBS 论坛</a>
+          <a href={SSO_URL} rel="noopener">现行 SSO 入口</a>
+        </div>
+      </div>
+      <div class="shell footer-legal">
+        <span>© 2026 airdb · 海外站点 · 国内环境：id.airdb.net</span>
+        <a href={GITHUB_URL} rel="noopener">github.com/airdb</a>
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
+      const bar = document.getElementById("topbar");
+      toggle?.addEventListener("click", () => {
+        const open = bar?.classList.toggle("nav-open") ?? false;
+        toggle.setAttribute("aria-expanded", String(open));
+        toggle.textContent = open ? "关闭" : "菜单";
+      });
+      // Close the mobile panel after navigating to an anchor
+      document.querySelectorAll("#site-nav a").forEach((a) =>
+        a.addEventListener("click", () => {
+          bar?.classList.remove("nav-open");
+          toggle?.setAttribute("aria-expanded", "false");
+          if (toggle) toggle.textContent = "菜单";
+        })
+      );
+    </script>
+  </body>
+</html>
