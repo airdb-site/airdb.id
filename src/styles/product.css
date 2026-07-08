@@ -394,6 +394,8 @@ section { padding: 96px 0; }
 .cap-status.is-building { border-color: var(--brass); color: var(--brass); }
 .cap-status.is-planned { border-color: var(--rule); color: var(--ink-soft); }
 .cap-phase { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; color: var(--brass); margin-left: 8px; }
+/* 7 项在 3 列网格里会留出空槽：末项占满整行，顺便突出最新能力 */
+.cap-card:last-child { grid-column: 1 / -1; }
 
 /* ============ 核验即弃（深色段 = 护照封皮） ============ */
 .verify {
@@ -483,6 +485,34 @@ section { padding: 96px 0; }
 .kd-discard .kd-field { text-decoration: line-through; text-decoration-color: var(--seal-light); text-decoration-thickness: 1px; }
 .kd-note { font-size: 0.78rem; color: var(--parchment-dim); }
 
+/* ============ 机器人身份（Agent 工作证） ============ */
+.agents { background: var(--paper-deep); border-block: 1px solid var(--rule); }
+.agents-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 64px;
+  align-items: center;
+}
+.agents-copy h2 { font-size: clamp(1.9rem, 3.4vw, 2.5rem); margin-bottom: 18px; }
+.agents-copy > p { color: var(--ink-soft); max-width: 36em; margin-bottom: 14px; }
+.agents-copy strong { color: var(--ink); font-weight: 600; }
+.agent-points { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+.agent-points li { padding-left: 26px; position: relative; font-size: 0.95rem; color: var(--ink-soft); }
+.agent-points li::before { content: "▪"; position: absolute; left: 0; color: var(--seal); }
+.agent-points li strong { display: inline; margin-right: 8px; }
+.agents-note {
+  margin-top: 24px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  border-left: 2px solid var(--seal);
+  padding-left: 14px;
+  max-width: 40em;
+}
+/* 工作证与 hero 的护照卡同源，反向微倾以示区别 */
+.agent-card { transform: rotate(-0.8deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+
 /* ============ 开发者接入 ============ */
 .dev-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 64px; align-items: center; }
 .dev-points { list-style: none; margin-top: 26px; display: grid; gap: 12px; }
@@ -513,7 +543,7 @@ section { padding: 96px 0; }
 
 /* ============ 路线图 ============ */
 .roadmap { background: var(--paper-deep); border-block: 1px solid var(--rule); }
-.phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1.5px solid var(--ink); }
+.phase-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border-top: 1.5px solid var(--ink); }
 .phase {
   position: relative;
   padding: 26px 26px 8px 0;
@@ -699,6 +729,7 @@ section { padding: 96px 0; }
   .reveal, .will-reveal, .id-stamp, .id-card .mrz { opacity: 1; transform: none; animation: none; transition: none; }
   .id-stamp { transform: rotate(-14deg); opacity: 0.88; }
   .id-card { transform: rotate(0.8deg); transition: none; }
+  .agent-card { transform: rotate(-0.8deg); }
   .id-foil { display: none; }
 }
 
@@ -750,7 +781,7 @@ section { padding: 96px 0; }
 
 /* ============ Responsive ============ */
 @media (max-width: 960px) {
-  .hero-grid, .dev-grid, .verify-grid { grid-template-columns: 1fr; gap: 44px; }
+  .hero-grid, .dev-grid, .verify-grid, .agents-grid { grid-template-columns: 1fr; gap: 44px; }
   .faq-grid { grid-template-columns: 1fr; gap: 40px; }
   .faq-grid .section-head { position: static; }
   .id-card { transform: none; }

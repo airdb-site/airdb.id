@@ -7,6 +7,7 @@ import {
   VERIFY_STEPS,
   VERIFY_KEEP,
   VERIFY_DISCARD,
+  AGENT_POINTS,
   ROADMAP,
   ENVIRONMENTS,
   CONSUMERS,
@@ -75,12 +76,27 @@ const CODE_SAMPLES = [
   <span class="t-key">"id_token"</span>:      <span class="t-str">"eyJhbG…"</span>
 <span class="t-dim">}</span>`,
   },
+  {
+    key: "agent",
+    label: "Agent",
+    html: `<span class="t-kw">POST</span> /oauth/token                          <span class="t-dim"># 机器人换短票</span>
+    grant_type=<span class="t-str">client_credentials</span>
+    client_assertion_type=<span class="t-str">…jwt-bearer</span>       <span class="t-dim"># 私钥签名 · 私钥不出机器</span>
+    client_assertion=<span class="t-str">eyJhbG…</span>
+    scope=<span class="t-str">bbs.read forum.post</span>
+
+<span class="t-dim">{</span>
+  <span class="t-key">"access_token"</span>: <span class="t-str">"eyJhbG…"</span>,       <span class="t-dim"># 15 分钟 · 短票</span>
+  <span class="t-key">"sub"</span>:  <span class="t-str">"agent:crawler-01"</span>,       <span class="t-dim"># 机器人自己的身份</span>
+  <span class="t-key">"act"</span>:  { <span class="t-key">"sub"</span>: <span class="t-str">"user:8f3c…"</span> }  <span class="t-dim"># 替谁干活 · 可追责</span>
+<span class="t-dim">}</span>`,
+  },
 ];
 ---
 
 <ProductLayout
   title="airdb.id — 统一身份平台 · 一个身份，通行所有 airdb 服务"
-  description="airdb.id 是 airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、审计风控与零信任接入。实名核验坚持「核验即弃」——只留结果与哈希，不留证件影像。"
+  description="airdb.id 是 airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、审计风控与零信任接入，并为 AI Agent 与机器人签发可追责的 Agent ID。实名核验坚持「核验即弃」——只留结果与哈希，不留证件影像。"
   path="/"
 >
   <!-- ============ HERO ============ -->
@@ -95,9 +111,9 @@ const CODE_SAMPLES = [
           airdb 服务。
         </h1>
         <p class="lede reveal">
-          airdb.id 是 airdb 体系的用户身份中枢：OIDC / OAuth 2.1 单点登录，
-          Passkey 多因素，零信任接入。实名核验坚持「核验即弃」——
-          证件是用来核验的，不是用来收藏的。
+          airdb.id 是 airdb 体系的身份中枢：为人提供 OIDC / OAuth 2.1 单点登录、
+          Passkey 多因素与零信任接入，也为机器人签发可追责的 Agent ID。
+          实名核验坚持「核验即弃」——证件是用来核验的，不是用来收藏的。
         </p>
         <div class="hero-actions reveal">
           <a class="btn btn-solid" href={SSO_URL} rel="noopener">登录 airdb ID</a>
@@ -194,10 +210,11 @@ const CODE_SAMPLES = [
     <div class="shell">
       <header class="section-head">
         <p class="eyebrow">平台能力</p>
-        <h2>六件事，<span class="ital">一个身份</span>。</h2>
+        <h2>七件事，<span class="ital">一个身份</span>。</h2>
         <p class="section-lede">
-          登录、账号、多因素、审计、实名、零信任——用户身份相关的事都归这里，
-          业务系统不再各自管用户。状态如实标注：没上线，就写规划中。
+          登录、账号、多因素、审计、实名、零信任，再加上机器人——
+          人和机器人的身份相关的事都归这里，业务系统不再各自管用户。
+          状态如实标注：没上线，就写规划中。
         </p>
       </header>
       <div class="cap-grid">
@@ -281,6 +298,107 @@ const CODE_SAMPLES = [
     </div>
   </section>
 
+  <!-- ============ 机器人身份 ============ -->
+  <section class="agents" id="agents">
+    <div class="shell agents-grid">
+      <div class="agents-copy">
+        <p class="eyebrow">机器人身份 · Agent ID</p>
+        <h2>机器人上岗，<span class="ital">也要证件</span>。</h2>
+        <p>
+          越来越多的访问不是来自人，而是来自替人干活的程序——AI Agent、爬虫、
+          CI 机器人、自动化脚本。行业正在形成共识：<strong>每个机器人都该有自己的身份</strong>，
+          而不是共用某个人的 Cookie，或一把谁都能复制的永久 API Key。
+        </p>
+        <p>
+          所以 airdb.id 把身份体系做成<strong>人机同源</strong>：机器人与人共用同一套
+          签发、授权与审计设施。登记归属、短票上岗、代行委托，每一次调用都能回答
+          「这是谁家的机器人、替谁、在做什么」。
+        </p>
+        <ul class="agent-points">
+          {AGENT_POINTS.map((p) => (
+            <li>
+              <strong>{p.title}</strong>
+              <span>{p.copy}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="agents-note">
+          注：不发明私有轮子——签发走 OAuth 2.1 client credentials，
+          代行委托采用 Token Exchange 的 act 声明，对外请求可附 HTTP
+          消息签名（Web Bot Auth 方向），标准协议都能对上。
+        </p>
+      </div>
+
+      <div class="id-card-wrap agent-card-wrap">
+        <figure class="id-card agent-card" aria-label="Agent 工作证示例卡：机器人身份登记归属到人，凭据为短时效">
+          <figcaption class="id-card-head">
+            <span class="crest" aria-hidden="true">❖</span>
+            <span class="id-card-title">airdb agent</span>
+            <span class="id-card-sub">SPECIMEN · 样本</span>
+          </figcaption>
+          <div class="id-card-body">
+            <div class="id-photo" aria-hidden="true">bot</div>
+            <dl class="id-fields">
+              <div class="id-field">
+                <dt>机器人 / Agent</dt>
+                <dd class="mono">crawler-01</dd>
+              </div>
+              <div class="id-field">
+                <dt>持有人 / Holder</dt>
+                <dd>示例 · 已实名 <span class="ok">✓</span></dd>
+              </div>
+              <div class="id-field">
+                <dt>签发方 / Issuer</dt>
+                <dd class="mono">airdb.id</dd>
+              </div>
+              <div class="id-field">
+                <dt>密钥指纹 / Key</dt>
+                <dd class="mono redacted">sha256:ab12…9f</dd>
+              </div>
+              <div class="id-field">
+                <dt>作用域 / Scope</dt>
+                <dd class="mono">bbs.read forum.post</dd>
+              </div>
+              <div class="id-field">
+                <dt>凭据时效 / TTL</dt>
+                <dd>15 分钟 · 短票</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="mrz" aria-hidden="true">
+            AG&lt;AIRDB&lt;CRAWLER&lt;01<span>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span><br />
+            AB129F&lt;&lt;DELEGATED<span>&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span>15M
+          </div>
+          <div class="id-foil" aria-hidden="true"></div>
+          <svg class="id-stamp" viewBox="0 0 132 132" aria-hidden="true">
+            <defs>
+              <path id="agent-stamp-arc" d="M 66,66 m -45,0 a 45,45 0 1,1 90,0 a 45,45 0 1,1 -90,0" />
+            </defs>
+            <circle cx="66" cy="66" r="62" fill="none" stroke="currentColor" stroke-width="3.5" />
+            <circle cx="66" cy="66" r="55" fill="none" stroke="currentColor" stroke-width="1.2" />
+            <text
+              font-size="10"
+              letter-spacing="2.1"
+              fill="currentColor"
+              style="font-family: var(--mono); text-transform: uppercase;"
+            >
+              <textPath href="#agent-stamp-arc">registered · accountable · airdb.id ·</textPath>
+            </text>
+            <text
+              x="66" y="62" text-anchor="middle" font-size="16" fill="currentColor"
+              style="font-family: var(--serif); font-weight: 600;"
+            >持证上岗</text>
+            <text
+              x="66" y="84" text-anchor="middle" font-size="16" fill="currentColor"
+              style="font-family: var(--serif); font-weight: 600;"
+            >有据可查</text>
+          </svg>
+        </figure>
+        <p class="spec-note">▲ 示例样本：机器人的工作证——归属到人，凭据短时效。</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ 开发者接入 ============ -->
   <section id="developers">
     <div class="shell dev-grid">
@@ -330,9 +448,10 @@ const CODE_SAMPLES = [
     <div class="shell">
       <header class="section-head">
         <p class="eyebrow">路线图</p>
-        <h2>四步走，<span class="ital">不许愿</span>。</h2>
+        <h2>五步走，<span class="ital">不许愿</span>。</h2>
         <p class="section-lede">
-          每一期都是可独立交付的能力：先把 SSO 落地，再做加固，然后才轮到实名与零信任。
+          每一期都是可独立交付的能力：先把 SSO 落地，再做加固，
+          然后才轮到实名、零信任与机器人身份。
         </p>
       </header>
       <div class="phase-grid">
@@ -439,24 +558,25 @@ const CODE_SAMPLES = [
 
   <script>
     // 证件卡：指针跟随 3D 倾斜 + 烫金反光（仅精确指针设备，尊重 reduced-motion）
-    const wrap = document.querySelector<HTMLElement>(".id-card-wrap");
-    const card = wrap?.querySelector<HTMLElement>(".id-card");
     if (
-      wrap && card &&
       matchMedia("(hover: hover) and (pointer: fine)").matches &&
       !matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
-      wrap.addEventListener("pointermove", (e) => {
-        const r = card.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5;
-        const py = (e.clientY - r.top) / r.height - 0.5;
-        card.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
-        card.style.setProperty("--rx", `${(-py * 6).toFixed(2)}deg`);
-        card.style.setProperty("--mx", `${((px + 0.5) * 100).toFixed(1)}%`);
-      });
-      wrap.addEventListener("pointerleave", () => {
-        card.style.setProperty("--ry", "0deg");
-        card.style.setProperty("--rx", "0deg");
+      document.querySelectorAll<HTMLElement>(".id-card-wrap").forEach((wrap) => {
+        const card = wrap.querySelector<HTMLElement>(".id-card");
+        if (!card) return;
+        wrap.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          card.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
+          card.style.setProperty("--rx", `${(-py * 6).toFixed(2)}deg`);
+          card.style.setProperty("--mx", `${((px + 0.5) * 100).toFixed(1)}%`);
+        });
+        wrap.addEventListener("pointerleave", () => {
+          card.style.setProperty("--ry", "0deg");
+          card.style.setProperty("--rx", "0deg");
+        });
       });
     }
 
@@ -487,7 +607,7 @@ const CODE_SAMPLES = [
       { threshold: 0.01, rootMargin: "0px 0px -8% 0px" }
     );
     document
-      .querySelectorAll(".cap-card, .section-head, .flow-step, .kd-col, .phase, .env-card, .ledger, .verify-copy")
+      .querySelectorAll(".cap-card, .section-head, .flow-step, .kd-col, .phase, .env-card, .ledger, .verify-copy, .agents-copy, .agent-card-wrap")
       .forEach((el) => {
         el.classList.add("will-reveal");
         observer.observe(el);

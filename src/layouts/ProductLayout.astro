@@ -19,6 +19,7 @@ const ogImageUrl = new URL(ogImage, site).href;
 const NAV = [
   { label: "平台能力", href: "/#capabilities" },
   { label: "核验即弃", href: "/#verify" },
+  { label: "机器人身份", href: "/#agents" },
   { label: "开发者接入", href: "/#developers" },
   { label: "路线图", href: "/#roadmap" },
   { label: "常见问题", href: "/#faq" },
@@ -30,7 +31,7 @@ const jsonLd = JSON.stringify({
   name: "airdb.id 统一身份平台",
   url: site.href,
   description:
-    "airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、核验即弃的实名体系与零信任接入。",
+    "airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、核验即弃的实名体系、零信任接入与机器人 Agent ID。",
   publisher: { "@type": "Organization", name: "airdb", url: site.href, sameAs: [GITHUB_URL] },
 });
 ---
@@ -119,6 +120,7 @@ const jsonLd = JSON.stringify({
           <h3>平台</h3>
           <a href="/#capabilities">平台能力</a>
           <a href="/#verify">核验即弃</a>
+          <a href="/#agents">机器人身份</a>
           <a href="/#roadmap">路线图</a>
         </div>
         <div class="footer-col">
