@@ -1,0 +1,13 @@
+{
+  "name": "airdb.id 统一身份平台",
+  "short_name": "airdb.id",
+  "description": "airdb 体系的统一身份平台：OIDC / OAuth 2.1 单点登录、Passkey 多因素、核验即弃的实名体系与零信任接入。",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f8f4ea",
+  "theme_color": "#10162e",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
