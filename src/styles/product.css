@@ -807,3 +807,13 @@ section { padding: 96px 0; }
   .id-fields { grid-template-columns: 1fr; gap: 10px; }
   .id-stamp { right: -8px; bottom: 60px; width: 108px; height: 108px; }
 }
+
+@media (max-width: 380px) {
+  .hero-grid, .dev-grid, .verify-grid, .agents-grid { grid-template-columns: minmax(0, 1fr); }
+  .id-card-head { flex-wrap: wrap; }
+  .id-card-body { grid-template-columns: 1fr; }
+  .id-field dd { overflow-wrap: anywhere; }
+  .topbar-inner { height: auto; min-height: 64px; flex-wrap: wrap; padding-block: 12px; }
+  .topbar-actions { margin-left: auto; }
+  .topnav { top: 100%; }
+}
