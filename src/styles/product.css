@@ -58,7 +58,7 @@
   --seal: #b5382a; /* 印章红，AA-safe on paper for small text */
   --seal-deep: #93291d;
   --seal-soft: #f3d3c9;
-  --brass: #8a6414; /* 黄铜，AA-safe on paper for small text */
+  --brass: #805a10; /* 黄铜，AA-safe on paper for small text */
   --gold: #c9a13d; /* 装饰金，仅用于大字号与图形 */
   --gold-soft: #ecdcae;
   --parchment: #dde2f2; /* 深色段正文 */
@@ -762,7 +762,7 @@ section { padding: 96px 0; }
   --rule: #ddd4bf;
   --seal: #b5382a;
   --seal-deep: #93291d;
-  --brass: #8a6414;
+  --brass: #805a10;
   box-shadow: 0 1px 0 #fff inset, 10px 12px 0 rgb(0 0 0 / 0.5);
 }
 /* 深色段里 color-mix(--navy …) 会被提亮的 --navy 洗白，改用定值 */

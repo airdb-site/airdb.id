@@ -407,7 +407,7 @@ const CODE_SAMPLES = [
         <h2>标准 OIDC，<span class="ital">不发明轮子</span>。</h2>
         <p class="section-lede">
           任何支持 OpenID Connect 的语言和框架都能直接接入，
-          三个端点走完标准授权码流程，不需要学习私有协议。
+          下方为规划中的接入示例，端点与能力尚未开放，请以正式发布文档为准。
         </p>
         <ul class="dev-points">
           <li><strong>强制 PKCE</strong>，不提供隐式流——按 OAuth 2.1 的姿势来。</li>
@@ -421,6 +421,7 @@ const CODE_SAMPLES = [
           {CODE_SAMPLES.map((s, i) => (
             <button
               role="tab"
+              tabindex={i === 0 ? 0 : -1}
               id={`tab-${s.key}`}
               aria-controls={`panel-${s.key}`}
               aria-selected={i === 0 ? "true" : "false"}
@@ -432,6 +433,7 @@ const CODE_SAMPLES = [
         {CODE_SAMPLES.map((s, i) => (
           <pre
             role="tabpanel"
+            tabindex="0"
             id={`panel-${s.key}`}
             aria-labelledby={`tab-${s.key}`}
             class:list={["code-sample", i === 0 && "active"]}
@@ -542,7 +544,7 @@ const CODE_SAMPLES = [
       <h2>让系统<span class="ital">少管一件事</span>。</h2>
       <p>把登录和用户交给 airdb.id，业务只做业务。接入排期、能力建议、台账缺漏——都欢迎提 issue。</p>
       <div class="hero-actions">
-        <a class="btn btn-paper" href={GITHUB_URL} rel="noopener">GitHub 提 Issue</a>
+        <a class="btn btn-paper" href="https://github.com/airdb-site/airdb.id/issues" rel="noopener">GitHub 提 Issue</a>
         <a class="btn btn-ghost-light" href={SSO_URL} rel="noopener">登录 airdb ID</a>
       </div>
     </div>
@@ -587,6 +589,7 @@ const CODE_SAMPLES = [
         document.querySelectorAll("[data-code-tab]").forEach((b) => {
           b.classList.toggle("active", b === btn);
           b.setAttribute("aria-selected", String(b === btn));
+          (b as HTMLButtonElement).tabIndex = b === btn ? 0 : -1;
         });
         document.querySelectorAll<HTMLElement>("[data-code-panel]").forEach((p) => {
           p.classList.toggle("active", p.dataset.codePanel === key);
@@ -594,7 +597,18 @@ const CODE_SAMPLES = [
       });
     });
 
-    // 滚动渐显
+    const codeTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-code-tab]'));
+    codeTabs.forEach((tab, index) => tab.addEventListener('keydown', (event) => {
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % codeTabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + codeTabs.length) % codeTabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = codeTabs.length - 1;
+      else return;
+      event.preventDefault(); codeTabs[next].click(); codeTabs[next].focus();
+    }));
+
+    // Scroll reveals
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

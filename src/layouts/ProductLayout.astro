@@ -9,9 +9,10 @@ interface Props {
   path?: string;
   ogImage?: string;
   lang?: string;
+  noindex?: boolean;
 }
 
-const { title, description, path = "/", ogImage = "/og/home.png", lang = "zh-CN" } = Astro.props;
+const { noindex = false, title, description, path = "/", ogImage = "/og/home.png", lang = "zh-CN" } = Astro.props;
 const site = Astro.site ?? new URL("https://airdb.id");
 const canonical = new URL(path, site).href;
 const ogImageUrl = new URL(ogImage, site).href;
@@ -45,7 +46,8 @@ const jsonLd = JSON.stringify({
       // 首帧前确定主题，避免闪烁。优先级：?theme= 参数 > localStorage > 系统偏好。
       (() => {
         const q = new URLSearchParams(location.search).get("theme");
-        const saved = localStorage.getItem("theme");
+        let saved = null;
+        try { saved = localStorage.getItem("theme"); } catch {}
         const pick = (v) => v === "dark" || v === "light" ? v : null;
         document.documentElement.dataset.theme =
           pick(q) ?? pick(saved) ??
@@ -54,7 +56,7 @@ const jsonLd = JSON.stringify({
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="airdb.id" />
@@ -148,7 +150,7 @@ const jsonLd = JSON.stringify({
         const root = document.documentElement;
         const next = root.dataset.theme === "dark" ? "light" : "dark";
         root.dataset.theme = next;
-        localStorage.setItem("theme", next);
+        try { localStorage.setItem("theme", next); } catch {}
       });
 
       const toggle = document.querySelector<HTMLButtonElement>(".nav-toggle");
@@ -157,6 +159,12 @@ const jsonLd = JSON.stringify({
         const open = bar?.classList.toggle("nav-open") ?? false;
         toggle.setAttribute("aria-expanded", String(open));
         toggle.textContent = open ? "关闭" : "菜单";
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && bar?.classList.contains('nav-open')) {
+          bar.classList.remove('nav-open'); toggle?.setAttribute('aria-expanded', 'false');
+          if (toggle) { toggle.textContent = '菜单'; toggle.focus(); }
+        }
       });
       // Close the mobile panel after navigating to an anchor
       document.querySelectorAll("#site-nav a").forEach((a) =>
